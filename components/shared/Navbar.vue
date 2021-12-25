@@ -43,7 +43,7 @@
               <button
                 v-if="isAdmin"
                 class="button is-link is-outlined"
-                @click="() => {}"
+                @click="() => $router.push('/instructor')"
               >
                 Instructor
               </button>

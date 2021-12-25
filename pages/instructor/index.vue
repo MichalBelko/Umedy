@@ -1,9 +1,10 @@
 <template>
   <div class="instructor-page">
+    <Header title="Choose your admin page" exitLink="/" />
     <div class="centered">
       <div class="columns">
         <!-- Go to /instructor/courses -->
-        <div class="box" @click="() => {}">
+        <div class="box" @click="() => $router.push('/instructor/courses')">
           <div>Courses</div>
         </div>
         <!-- Go to /instructor/blogs -->
@@ -16,12 +17,15 @@
         </div>
       </div>
     </div>
-    -
   </div>
 </template>
 <script>
+import Header from "~/components/shared/Header";
 export default {
-  middleware: "admin",
+  components: {
+    Header,
+  },
+  layout: "instructor",
 };
 </script>
 <style scoped lang="scss">
