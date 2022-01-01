@@ -1,7 +1,10 @@
 <template>
   <div class="full-page-takeover-window">
     <div class="full-page-takeover-page">
-      <Header :title="`Step 1 of 2`" exitLink="/instructor/courses" />
+      <Header
+        :title="`Step ${activeStep} of ${steps.length}`"
+        exitLink="/instructor/courses"
+      />
       <div class="full-page-takeover-header-bottom-progress">
         <div
           :style="{ width: progress }"
@@ -10,12 +13,13 @@
       </div>
       <div class="course-create full-page-takeover-container">
         <div class="container">
-          <!-- STEP 1 of FORM  -->
-          <Step1 v-if="this.activeStep === 1" />
-          <!-- STEP 1 END-->
-          <!-- STEP 2 of FORM -->
-          <Step2 v-if="this.activeStep === 2" />
-          <!-- STEP 2 END -->
+          <keep-alive>
+            <component
+              ref="activeComponent"
+              :is="activeComponent"
+              @stepUpdated="mergeFormData"
+            />
+          </keep-alive>
         </div>
         <div class="full-page-footer-row">
           <div class="container">
@@ -31,6 +35,7 @@
               <div>
                 <button
                   v-if="!isLastStep"
+                  :disabled="!canProceed"
                   @click.prevent="increment"
                   class="button is-large float-right"
                 >
@@ -38,8 +43,9 @@
                 </button>
                 <button
                   v-else
-                  @click="() => {}"
+                  @click="createCourse"
                   class="button is-success is-large float-right"
+                  :disabled="!canProceed"
                 >
                   Confirm
                 </button>
@@ -63,6 +69,11 @@ export default {
     return {
       activeStep: 1,
       steps: [Step1, Step2],
+      canProceed: false,
+      form: {
+        title: "",
+        category: "",
+      },
     };
   },
   computed: {
@@ -78,13 +89,29 @@ export default {
     progress() {
       return `${(100 / this.stepsLength) * this.activeStep}% `;
     },
+    activeComponent() {
+      return this.steps[this.activeStep - 1];
+    },
+  },
+  fetch({ store }) {
+    return store.dispatch("category/fetchCategories");
   },
   methods: {
     increment() {
       this.activeStep++;
+      this.$nextTick(() => {
+        this.canProceed = this.$refs.activeComponent.isValid;
+      });
     },
     decrement() {
       this.activeStep--;
+    },
+    mergeFormData({ data, isValid }) {
+      this.form = { ...this.form, ...data };
+      this.canProceed = isValid;
+    },
+    createCourse() {
+      this.$store.dispatch("instructor/course/createCourse", this.form);
     },
   },
 };

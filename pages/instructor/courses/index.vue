@@ -42,7 +42,10 @@
                     <div class="column is-narrow">
                       <figure class="image is-4by2 is-128x128">
                         <img
-                          :src="'https://i.udemycdn.com/course/750x422/2381802_d90c_3.jpg'"
+                          :src="
+                            course.image ||
+                            'https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg'
+                          "
                         />
                       </figure>
                     </div>
@@ -51,9 +54,9 @@
                         {{ course.title }}
                       </p>
                       <p class="subtitle">
-                        {{ course.subtitle }}
+                        {{ course.subtitle || "No subtitle provided yet" }}
                       </p>
-                      <span class="tag" :class="'is-success'">{{
+                      <span class="tag" :class="statusClass(course.status)">{{
                         course.status
                       }}</span>
                     </div>
@@ -84,12 +87,25 @@ export default {
       return this.$store.state.instructor.course.items;
     },
   },
+  methods: {
+    statusClass(status) {
+      if (!status) return "";
+      if (status == "published") return "is-success";
+      if (status == "deleted") return "is-danger";
+      if (status == "inactive") return "is-warning";
+      if (status == "active") return "is-primaryMine";
+    },
+  },
   fetch({ store }) {
     return store.dispatch("instructor/course/fetchInstructorCourses");
   },
 };
 </script>
 <style scoped lang="scss">
+.is-primaryMine {
+  background-color: rgb(77, 89, 255);
+  color: #fff;
+}
 .tile-image {
   float: left;
 }

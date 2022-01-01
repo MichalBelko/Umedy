@@ -12,6 +12,11 @@ export const actions = {
       })
       .catch((error) => Promise.reject(error));
   },
+  createCourse(_, courseData) {
+    return this.$axios.$post("/api/v1/products", courseData).then(() => {
+      return this.$router.push("/instructor/courses");
+    });
+  },
 };
 
 export const mutations = {

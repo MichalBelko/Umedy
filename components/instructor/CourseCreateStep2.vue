@@ -10,11 +10,28 @@
       <div class="course-create-form-group">
         <div class="course-create-form-field">
           <div class="select is-large">
-            <select>
+            <select
+              @change="emitFormData"
+              @blur="$v.form.category.$touch()"
+              v-model="form.category"
+            >
               <option value="default">Select Category</option>
-              <option>Mobile Development</option>
-              <option>Web Development</option>
+              <option
+                v-for="category in categories"
+                :value="category._id"
+                :key="category._id"
+              >
+                {{ category.name }}
+              </option>
             </select>
+            <div
+              v-if="$v.form.category.$error || form.category == 'default'"
+              class="form-error"
+            >
+              <span v-if="!$v.form.category.required" class="help is-danger"
+                >Category is required</span
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -23,7 +40,44 @@
 </template>
 
 <script>
-export default {};
+import { store } from "vuex";
+import { required } from "vuelidate/lib/validators";
+export default {
+  computed: {
+    categories() {
+      return this.$store.state.category.items;
+    },
+    isValid() {
+      return !this.$v.invalid && this.form.category !== "default";
+    },
+  },
+  data() {
+    return {
+      form: {
+        category: "default",
+      },
+    };
+  },
+  validations: {
+    form: {
+      category: {
+        required,
+      },
+    },
+  },
+  methods: {
+    emitFormData() {
+      this.$emit("stepUpdated", { data: this.form, isValid: this.isValid });
+    },
+  },
+};
 </script>
 
-<style></style>
+<style>
+option[value="default"] {
+  display: none;
+}
+.help.is-danger {
+  text-align: left;
+}
+</style>
